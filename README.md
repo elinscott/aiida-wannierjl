@@ -5,98 +5,58 @@
 
 # aiida-wannierjl
 
-Aiida plugin for WannierJL, a Julia package for playing with Wannier functions
+An [AiiDA](https://www.aiida.net) plugin that wraps [Wannier.jl](https://github.com/qiaojunfeng/Wannier.jl) (pinned to rev `65245c59` of the `qiaojunfeng/Wannier.jl` fork, requires Julia >= 1.11) to manipulate Wannier functions from within AiiDA workflows.
 
-This plugin is the default output of the
-[AiiDA plugin cutter](https://github.com/aiidateam/aiida-plugin-cutter),
-intended to help developers get started with their AiiDA plugins.
-
-## Repository contents
-
-* [`.github/`](.github/): [Github Actions](https://github.com/features/actions) configuration
-  * [`ci.yml`](.github/workflows/ci.yml): runs tests, checks test coverage and builds documentation at every new commit
-  * [`publish-on-pypi.yml`](.github/workflows/publish-on-pypi.yml): automatically deploy git tags to PyPI - just generate a [PyPI API token](https://pypi.org/help/#apitoken) for your PyPI account and add it to the `pypi_token` secret of your github repository
-* [`aiida_wannierjl/`](aiida_wannierjl/): The main source code of the plugin package
-  * [`data/`](aiida_wannierjl/data/): A new `DiffParameters` data class, used as input to the `DiffCalculation` `CalcJob` class
-  * [`calculations.py`](aiida_wannierjl/calculations.py): A new `DiffCalculation` `CalcJob` class
-  * [`cli.py`](aiida_wannierjl/cli.py): Extensions of the `verdi data` command line interface for the `DiffParameters` class
-  * [`helpers.py`](aiida_wannierjl/helpers.py): Helpers for setting up an AiiDA code for `diff` automatically
-  * [`parsers.py`](aiida_wannierjl/parsers.py): A new `Parser` for the `DiffCalculation`
-* [`docs/`](docs/): A documentation template ready for publication on [Read the Docs](http://aiida-diff.readthedocs.io/en/latest/)
-* [`examples/`](examples/): An example of how to submit a calculation using this plugin
-* [`tests/`](tests/): Basic regression tests using the [pytest](https://docs.pytest.org/en/latest/) framework (submitting a calculation, ...). Install `pip install -e .[testing]` and run `pytest`.
-* [`.gitignore`](.gitignore): Telling git which files to ignore
-* [`.pre-commit-config.yaml`](.pre-commit-config.yaml): Configuration of [pre-commit hooks](https://pre-commit.com/) that sanitize coding style and check for syntax errors. Enable via `pip install -e .[pre-commit] && pre-commit install`
-* [`.readthedocs.yml`](.readthedocs.yml): Configuration of documentation build for [Read the Docs](https://readthedocs.org/)
-* [`LICENSE`](LICENSE): License for your plugin
-* [`README.md`](README.md): This file
-* [`conftest.py`](conftest.py): Configuration of fixtures for [pytest](https://docs.pytest.org/en/latest/)
-* [`pyproject.toml`](setup.json): Python package metadata for registration on [PyPI](https://pypi.org/) and the [AiiDA plugin registry](https://aiidateam.github.io/aiida-registry/) (including entry points)
-
-See also the following video sequences from the 2019-05 AiiDA tutorial:
-
- * [run aiida-diff example calculation](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=403s)
- * [aiida-diff CalcJob plugin](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=685s)
- * [aiida-diff Parser plugin](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=936s)
- * [aiida-diff computer/code helpers](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=1238s)
- * [aiida-diff input data (with validation)](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=1353s)
- * [aiida-diff cli](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=1621s)
- * [aiida-diff tests](https://www.youtube.com/watch?v=2CxiuiA1uVs&t=1931s)
- * [Adding your plugin to the registry](https://www.youtube.com/watch?v=760O2lDB-TM&t=112s)
- * [pre-commit hooks](https://www.youtube.com/watch?v=760O2lDB-TM&t=333s)
-
-For more information, see the [developer guide](https://aiida-diff.readthedocs.io/en/latest/developer_guide) of your plugin.
-
+Each calculation renders a small Julia driver script (`driver.jl`) and runs it against a persistent, pinned Wannier.jl project environment. The AiiDA `Code` is the Julia binary itself, so the calculations are remote-capable and provenance is tracked like any other AiiDA CalcJob. Results come back through a machine-readable `results.json` that the parsers turn into AiiDA output nodes.
 
 ## Features
 
- * Add input files using `SinglefileData`:
-   ```python
-   SinglefileData = DataFactory('core.singlefile')
-   inputs['file1'] = SinglefileData(file='/path/to/file1')
-   inputs['file2'] = SinglefileData(file='/path/to/file2')
-   ```
+The plugin provides three CalcJobs, one per Wannier.jl operation:
 
- * Specify command line options via a python dictionary and `DiffParameters`:
-   ```python
-   d = { 'ignore-case': True }
-   DiffParameters = DataFactory('wannierjl')
-   inputs['parameters'] = DiffParameters(dict=d)
-   ```
+* **`wannierjl.check_neighbors`** (`CheckNeighborsCalculation`) — reads a wannier90 run (`.win`, `.chk`, `.mmn`, `.amn`, `.eig`) with `read_w90_with_chk` and reports whether the k-point stencil contains the six cubic nearest-neighbour b-vectors (`Wannier.has_cubic_neighbors`). Output: a `Bool` node `has_cubic_neighbors`.
+* **`wannierjl.generate_neighbors`** (`GenerateNeighborsCalculation`) — writes a `cubic.nnkp` file with the six cubic b-vectors via `Wannier.write_nnkp_cubic`, so that a `.mmn` with cubic neighbours can be regenerated. Output: a `SinglefileData` node `nnkp_file`.
+* **`wannierjl.split`** (`SplitCalculation`) — splits a Wannier manifold into blocks with `Wannier.Tools.mrwf`, given 1-based index groups. Outputs, under dynamic namespaces: per-block `FolderData` (`blocks.block_i`, containing `amn`/`eig`/`mmn`), the per-block `.win` files (`win_files.block_i`), and the per-block split U matrices (`u_matrices.block_i`, the `<seedname>_split.amn` files).
 
- * `DiffParameters` dictionaries are validated using [voluptuous](https://github.com/alecthomas/voluptuous).
-   Find out about supported options:
-   ```python
-   DiffParameters = DataFactory('wannierjl')
-   print(DiffParameters.schema.schema)
-   ```
+Input files for each CalcJob can be supplied either explicitly as `SinglefileData` ports or picked up from a parent calculation's remote working directory (`parent_folders.*` `RemoteData`), which is how the `.chk` file — not normally retrieved by upstream wannier90 plugins — is symlinked in from a wannier90 run on the same computer.
+
+### `workflows` extra
+
+Installing the optional `workflows` extra pulls in [aiida-workgraph](https://github.com/aiidateam/aiida-workgraph) and [aiida-quantumespresso](https://github.com/aiidateam/aiida-quantumespresso) and exposes `split_wannierization`, an `aiida-workgraph` `@task.graph` that orchestrates the full split:
+
+```python
+from aiida_wannierjl.workflows import split_wannierization
+```
+
+It runs `check_neighbors` and, only when the cubic neighbours are missing, generates the `cubic.nnkp`, regenerates the cubic `.mmn` with a `Pw2wannier90Calculation` (forcing `write_mmn=.true.`, `write_amn=.false.`, SCDM off), and then runs `split` — all in a single invocation, with the cubic branch decided at runtime. Re-wannierization and U-matrix merging are deliberately out of scope and stay in the downstream consumer (koopmans).
+
+## Julia environment
+
+The Wannier.jl project environment is created once per machine, never per calculation. A helper builds the pinned project (`Pkg.add` of Wannier.jl at rev `65245c59` plus `JSON`) and, by default, a [PackageCompiler.jl](https://github.com/JuliaLang/PackageCompiler.jl) sysimage so that each calculation loads in ~0.1 s instead of paying the multi-second `using Wannier` cost on every fresh process. The sysimage path travels on the `Code` node, and the CalcJobs pick it up automatically (falling back to a plain `--project` load when no sysimage is known).
+
+See the [get started guide](https://aiida-wannierjl.readthedocs.io/en/latest/user_guide/get_started.html) for the full setup procedure (`setup_julia_environment` and `get_wannierjl_code` in `aiida_wannierjl.helpers`).
 
 ## Installation
 
 ```shell
-pip install aiida-wannierjl
-verdi quicksetup  # better to set up a new profile
-verdi plugin list aiida.calculations  # should now show your calclulation plugins
+pip install aiida-wannierjl[workflows]   # drop [workflows] if you don't need the workgraph
+verdi quicksetup                         # better to set up a new profile
+verdi plugin list aiida.calculations     # should list the three wannierjl.* plugins
 ```
 
+You also need a Julia >= 1.11 installation and the one-time environment setup described above.
 
 ## Usage
 
-Here goes a complete example of how to submit a test calculation using this plugin.
+Once you have registered a Julia code (labelled e.g. `wannierjl@localhost`), a minimal `generate_neighbors` run looks like:
 
-A quick demo of how to submit a calculation:
 ```shell
 verdi daemon start     # make sure the daemon is running
 cd examples
-./example_01.py        # run test calculation
-verdi process list -a  # check record of calculation
+./example_01.py        # generate a cubic.nnkp from a small .win
+verdi process list -a  # check the record of the calculation
 ```
 
-The plugin also includes verdi commands to inspect its data types:
-```shell
-verdi data wannierjl list
-verdi data wannierjl export <PK>
-```
+See [`examples/example_01.py`](examples/example_01.py) for the corresponding Python.
 
 ## Development
 
@@ -104,25 +64,26 @@ verdi data wannierjl export <PK>
 git clone https://github.com/elinscott/aiida-wannierjl .
 cd aiida-wannierjl
 pip install --upgrade pip
-pip install -e .[pre-commit,testing]  # install extra dependencies
-pre-commit install  # install pre-commit hooks
-pytest -v  # discover and run all tests
+pip install -e .[pre-commit,workflows]  # install extra dependencies
+pre-commit install                      # install pre-commit hooks
+pytest -v                               # discover and run all tests
 ```
 
-See the [developer guide](http://aiida-wannierjl.readthedocs.io/en/latest/developer_guide/index.html) for more information.
+The test suite mocks the Julia code, so it runs in CI without a real Julia installation. See the [developer guide](https://aiida-wannierjl.readthedocs.io/en/latest/developer_guide/index.html) for more information.
 
 ## License
 
 MIT
+
 ## Contact
 
 edwardlinscott@gmail.com
 
 
-[ci-badge]: https://github.com/elinscott/aiida-wannierjl/workflows/ci/badge.svg?branch=master
+[ci-badge]: https://github.com/elinscott/aiida-wannierjl/workflows/ci/badge.svg?branch=main
 [ci-link]: https://github.com/elinscott/aiida-wannierjl/actions
-[cov-badge]: https://coveralls.io/repos/github/elinscott/aiida-wannierjl/badge.svg?branch=master
-[cov-link]: https://coveralls.io/github/elinscott/aiida-wannierjl?branch=master
+[cov-badge]: https://coveralls.io/repos/github/elinscott/aiida-wannierjl/badge.svg?branch=main
+[cov-link]: https://coveralls.io/github/elinscott/aiida-wannierjl?branch=main
 [docs-badge]: https://readthedocs.org/projects/aiida-wannierjl/badge
 [docs-link]: http://aiida-wannierjl.readthedocs.io/
 [pypi-badge]: https://badge.fury.io/py/aiida-wannierjl.svg

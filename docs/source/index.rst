@@ -1,6 +1,14 @@
 The aiida-wannierjl plugin for `AiiDA`_
 =====================================================
 
+``aiida-wannierjl`` is an `AiiDA`_ plugin that wraps `Wannier.jl`_ (pinned to a fixed
+revision of the ``qiaojunfeng/Wannier.jl`` fork) to manipulate Wannier functions. It
+provides three CalcJobs — ``wannierjl.check_neighbors``, ``wannierjl.generate_neighbors``
+and ``wannierjl.split`` — and, via the optional ``workflows`` extra, an aiida-workgraph
+``split_wannierization`` graph that ties them together with a cubic ``.mmn`` regeneration
+step. Each CalcJob renders a small Julia driver script and runs it against a persistent,
+pinned Wannier.jl project environment.
+
 ``aiida-wannierjl`` is available at http://github.com/elinscott/aiida-wannierjl
 
 
@@ -36,3 +44,4 @@ Indices and tables
 * :ref:`search`
 
 .. _AiiDA: http://www.aiida.net
+.. _Wannier.jl: https://github.com/qiaojunfeng/Wannier.jl
