@@ -27,7 +27,7 @@ inside the body is an unresolved socket, not a value, so a plain
 the check. aiida-workgraph resolves a graph task's own inputs to concrete values
 before its body runs (see the ``sum_to_n`` example in the aiida-workgraph test
 suite, ``tests/test_while.py``), so the data-dependent branch is delegated to a
-nested graph task (:func:`split_after_check`) that *receives*
+nested graph task (:func:`~aiida_wannierjl.workflows.split.split_after_check`) that *receives*
 ``has_cubic_neighbors`` as an input. When that nested task executes -- after the
 check has finished -- the value is concrete and ordinary Python ``if`` works.
 
@@ -71,9 +71,7 @@ Pw2wannier90Task = task()(Pw2wannier90Calculation)
 
 #: Forced ``pw2wannier90.x`` parameters for the cubic ``.mmn`` regeneration:
 #: write only the overlap matrix, never the projections/UNK, and no SCDM.
-_CUBIC_PW2WANNIER90_PARAMETERS = {
-    "INPUTPP": {"write_mmn": True, "write_amn": False, "write_unk": False}
-}
+_CUBIC_PW2WANNIER90_PARAMETERS = {"INPUTPP": {"write_mmn": True, "write_amn": False, "write_unk": False}}
 
 # Output shapes, declared from the underlying CalcJob output specs so the
 # per-block dynamic namespaces (``block_0 .. block_N``) propagate unchanged.
@@ -142,7 +140,8 @@ def split_after_check(
 ):
     """Regenerate the cubic ``.mmn`` if needed, then run the split.
 
-    ``has_cubic_neighbors`` is wired from :class:`CheckNeighborsCalculation`'s
+    ``has_cubic_neighbors`` is wired from
+    :class:`~aiida_wannierjl.calculations.check_neighbors.CheckNeighborsCalculation`'s
     output; because this is a nested graph task, it is a concrete value by the
     time this body runs, so the ``if`` below is a genuine runtime branch. When
     the cubic branch triggers, ``nscf_parent`` and ``pw2wannier90_code`` are

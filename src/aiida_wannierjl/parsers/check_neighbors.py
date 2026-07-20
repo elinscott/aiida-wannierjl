@@ -1,4 +1,4 @@
-"""Parser for :class:`CheckNeighborsCalculation`."""
+"""Parser for :class:`~aiida_wannierjl.calculations.check_neighbors.CheckNeighborsCalculation`."""
 
 from aiida import orm
 from aiida.engine import ExitCode

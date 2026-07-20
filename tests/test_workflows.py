@@ -21,10 +21,9 @@ from aiida.common.datastructures import CalcInfo, CodeInfo  # noqa: E402
 from aiida.engine import CalcJob  # noqa: E402
 from aiida.orm import QueryBuilder  # noqa: E402
 from aiida.plugins import CalculationFactory  # noqa: E402
-from aiida_workgraph import WorkGraph, task  # noqa: E402
-
 from aiida_wannierjl.calculations.split import SplitCalculation  # noqa: E402
 from aiida_wannierjl.workflows import split_wannierization  # noqa: E402
+from aiida_workgraph import WorkGraph, task  # noqa: E402
 
 FIXTURES_DIR = pathlib.Path(__file__).parent / "fixtures"
 
@@ -79,25 +78,6 @@ def _write_executable(directory, name, body):
     script.write_text(body.replace("__FIXTURES__", str(FIXTURES_DIR)))
     script.chmod(script.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
     return script
-
-
-@pytest.fixture
-def require_broker():
-    """Skip the requesting test unless the profile has a broker.
-
-    The WorkGraph engine ``submit()``s its child processes, so running a graph
-    needs a profile with a broker (e.g. ``broker_backend='core.rabbitmq'``), just
-    like aiida-workgraph's own test suite. The plugin's default test profile has
-    none, so skip cleanly rather than fail deep in the engine.
-    """
-    from aiida.manage import get_manager
-
-    if get_manager().get_broker() is None:
-        pytest.skip(
-            "split_wannierization tests need an AiiDA profile with a broker "
-            "(the WorkGraph engine submits child processes); configure the "
-            "aiida_profile with broker_backend='core.rabbitmq' to run them"
-        )
 
 
 @pytest.fixture
@@ -176,7 +156,7 @@ def test_import():
     assert callable(split_wannierization)
 
 
-def test_cubic_present_skips_pw2wannier90(require_broker, mock_julia_code):
+def test_cubic_present_skips_pw2wannier90(mock_julia_code):
     """When cubic neighbours are present, the split runs directly (no pw2wannier90)."""
     with WorkGraph() as wg:
         outputs = split_wannierization(
@@ -198,7 +178,7 @@ def test_cubic_present_skips_pw2wannier90(require_broker, mock_julia_code):
     assert set(split_nodes[0].outputs.blocks) == {"block_0", "block_1"}
 
 
-def test_cubic_absent_without_nscf_fails(require_broker, mock_julia_code_no_cubic):
+def test_cubic_absent_without_nscf_fails(mock_julia_code_no_cubic):
     """The cubic branch needs nscf_parent + pw2wannier90_code; missing => graph fails."""
     with WorkGraph() as wg:
         split_wannierization(
@@ -217,7 +197,7 @@ def test_cubic_absent_without_nscf_fails(require_broker, mock_julia_code_no_cubi
 
 
 def test_cubic_absent_runs_pw2wannier90(
-    require_broker, mock_julia_code_no_cubic, mock_pw2wannier90_code, aiida_localhost, tmp_path, monkeypatch
+    mock_julia_code_no_cubic, mock_pw2wannier90_code, aiida_localhost, tmp_path, monkeypatch
 ):
     """When cubic neighbours are absent, the pw2wannier90 branch runs then the split."""
     from aiida_wannierjl.workflows import split as split_module

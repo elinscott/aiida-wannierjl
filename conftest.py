@@ -1,11 +1,18 @@
 """pytest fixtures for simplified testing."""
 
-import os
 import pathlib
-import socket
 import stat
 
 import pytest
+from aiida.manage.configuration import load_config
+
+# ``aiida_pythonjob`` (pulled in by ``aiida_workgraph``) calls ``get_config()`` at
+# import time and raises ``MissingConfigurationError`` on machines without an
+# existing AiiDA configuration (e.g. fresh CI runners), aborting test collection
+# of any module that imports ``aiida_workgraph``. Creating the configuration up
+# front keeps collection alive; the test profile itself is still built from
+# scratch by the ``aiida_config``/``aiida_profile_factory`` fixtures below.
+load_config(create=True)
 
 # The modern AiiDA (>=2.x) pytest fixture plugin. Provides ``aiida_profile``,
 # ``aiida_profile_clean``, ``aiida_localhost`` and the ``aiida_code_installed``
@@ -17,42 +24,11 @@ pytest_plugins = ["aiida.tools.pytest_fixtures"]
 FIXTURES_DIR = pathlib.Path(__file__).parent / "tests" / "fixtures"
 
 
-def _rabbitmq_available(host="127.0.0.1", port=5672, timeout=0.5):
-    """Return whether a RabbitMQ broker looks reachable.
-
-    The CalcJob/driver tests run blocking in-process and need no broker, but the
-    workflow tests submit through the WorkGraph engine, which does. We probe once
-    per session so that developers without RabbitMQ transparently fall back to a
-    broker-less profile (those tests then self-skip), while CI — which ships a
-    RabbitMQ service — gets a broker-backed profile and actually runs them.
-
-    ``AIIDA_WANNIERJL_RABBITMQ`` overrides the probe entirely: ``1`` forces the
-    broker on, any other value (e.g. ``0``) forces it off -- useful when the probe
-    would false-positive on an unrelated service holding port 5672.
-    """
-    override = os.environ.get("AIIDA_WANNIERJL_RABBITMQ")
-    if override is not None:
-        return override == "1"
-    try:
-        with socket.create_connection((host, port), timeout=timeout):
-            return True
-    except OSError:
-        return False
-
-
-@pytest.fixture(scope="session", autouse=True)
-def aiida_profile(aiida_config, aiida_profile_factory):
-    """Session-wide AiiDA profile, broker-backed only when RabbitMQ is reachable.
-
-    Overrides the plugin's default (broker-less) profile following aiida-workgraph's
-    conftest pattern, but conditionally: with ``broker_backend='core.rabbitmq'`` when
-    a broker is reachable, otherwise the plain broker-less profile.
-    """
-    kwargs = {}
-    if _rabbitmq_available():
-        kwargs["broker_backend"] = "core.rabbitmq"
-    with aiida_profile_factory(aiida_config, **kwargs) as profile:
-        yield profile
+# All tests — including the WorkGraph ones — execute via blocking ``run()``
+# calls, and a non-daemon runner always schedules child processes on its local
+# event loop (``broker_submit=False`` in ``Manager.create_runner``), so the
+# default broker-less profile from ``aiida.tools.pytest_fixtures`` suffices.
+# No RabbitMQ, broker-backed profile, or daemon is needed anywhere.
 
 
 @pytest.fixture(scope="function", autouse=True)

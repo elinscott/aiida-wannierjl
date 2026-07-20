@@ -3,12 +3,12 @@
 The base parser handles everything common to the three operations: detecting a
 Julia failure from ``julia.out``, loading and JSON-decoding ``results.json``, and
 mapping problems to the exit codes declared on the CalcJob spec. Subclasses only
-implement :meth:`_parse_results`, which receives the decoded results dict.
+implement :meth:`~aiida_wannierjl.parsers.base.WannierJLBaseParser._parse_results`, which
+receives the decoded results dict.
 """
 
 import json
 
-from aiida.engine import ExitCode
 from aiida.parsers import Parser
 
 from ..calculations.base import RESULTS_FILE, STDOUT_FILE

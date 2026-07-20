@@ -10,7 +10,6 @@ import pathlib
 import pytest
 from aiida import orm
 from aiida.engine import run_get_node
-
 from aiida_wannierjl.calculations import (
     CheckNeighborsCalculation,
     GenerateNeighborsCalculation,

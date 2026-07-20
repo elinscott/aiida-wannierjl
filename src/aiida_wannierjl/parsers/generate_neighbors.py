@@ -1,4 +1,4 @@
-"""Parser for :class:`GenerateNeighborsCalculation`."""
+"""Parser for :class:`~aiida_wannierjl.calculations.generate_neighbors.GenerateNeighborsCalculation`."""
 
 import io
 

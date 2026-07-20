@@ -1,4 +1,4 @@
-"""Parser for :class:`SplitCalculation`."""
+"""Parser for :class:`~aiida_wannierjl.calculations.split.SplitCalculation`."""
 
 import io
 import re

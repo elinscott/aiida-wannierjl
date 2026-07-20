@@ -126,8 +126,7 @@ class WannierJLCalcJob(CalcJob):
             "parent_folders.pw2wannier90",
             valid_type=orm.RemoteData,
             required=False,
-            help="Remote working directory of a pw2wannier90.x run "
-            "(source of ``<seedname>.{amn,mmn,eig}``).",
+            help="Remote working directory of a pw2wannier90.x run " "(source of ``<seedname>.{amn,mmn,eig}``).",
         )
 
         spec.inputs.validator = cls._validate_inputs
@@ -183,10 +182,7 @@ class WannierJLCalcJob(CalcJob):
                     f"`parent_folders.{parent_key}`; provide exactly one"
                 )
             if not has_file and not has_remote:
-                return (
-                    f"the `.{ext}` file must be provided via `{port}` or "
-                    f"`parent_folders.{parent_key}`"
-                )
+                return f"the `.{ext}` file must be provided via `{port}` or " f"`parent_folders.{parent_key}`"
             if has_remote and code_computer is not None and remote.computer.uuid != code_computer.uuid:
                 return (
                     f"`parent_folders.{parent_key}` is on computer `{remote.computer.label}` but the "
@@ -210,7 +206,7 @@ class WannierJLCalcJob(CalcJob):
         """Return extra ``(local_copy_list, remote_symlink_list)`` entries.
 
         Used by subclasses that stage files beyond the standard Wannier90 set
-        (e.g. the cubic ``.mmn`` for :class:`SplitCalculation`).
+        (e.g. the cubic ``.mmn`` for :class:`~aiida_wannierjl.calculations.split.SplitCalculation`).
         """
         return [], []
 

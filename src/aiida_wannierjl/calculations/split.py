@@ -41,7 +41,8 @@ def validate_outdirs(value, _):
 class SplitCalculation(WannierJLCalcJob):
     """Split a Wannier manifold into blocks using ``Wannier.Tools.mrwf``.
 
-    Requires the full Wannier90 set (as :class:`CheckNeighborsCalculation`) plus a
+    Requires the full Wannier90 set (as
+    :class:`~aiida_wannierjl.calculations.check_neighbors.CheckNeighborsCalculation`) plus a
     list of 1-based index ``groups``. An optional cubic ``.mmn`` (from
     ``cubic_mmn_file`` or the ``pw2wannier90_cubic`` parent folder) is passed to
     ``mrwf`` when the default b-vectors lack cubic neighbours.

@@ -3,7 +3,7 @@ Tutorial
 ========
 
 This tutorial walks through the three ``aiida-wannierjl`` CalcJobs and the
-:func:`~aiida_wannierjl.workflows.split_wannierization` workgraph that ties them
+:func:`~aiida_wannierjl.workflows.split.split_wannierization` workgraph that ties them
 together. It assumes you have already set up a Julia code (see
 :doc:`get_started`) and have a completed wannier90 run to work from. The examples
 load each calculation through its entry point, so nothing here depends on the
@@ -93,7 +93,7 @@ Orchestrating with the workgraph
 
 With the ``workflows`` extra installed
 (``pip install aiida-wannierjl[workflows]``),
-:func:`~aiida_wannierjl.workflows.split_wannierization` chains these steps into a
+:func:`~aiida_wannierjl.workflows.split.split_wannierization` chains these steps into a
 single aiida-workgraph ``@task.graph``. It runs ``check_neighbors`` and, only when
 the cubic neighbours are missing, generates the ``cubic.nnkp``, regenerates the
 cubic ``.mmn`` with a ``Pw2wannier90Calculation``, and then runs ``split`` — the
