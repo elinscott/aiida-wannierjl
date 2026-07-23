@@ -80,10 +80,10 @@ MIT
 edwardlinscott@gmail.com
 
 
-[ci-badge]: https://github.com/elinscott/aiida-wannierjl/workflows/ci/badge.svg?branch=main
-[ci-link]: https://github.com/elinscott/aiida-wannierjl/actions
-[cov-badge]: https://coveralls.io/repos/github/elinscott/aiida-wannierjl/badge.svg?branch=main
-[cov-link]: https://coveralls.io/github/elinscott/aiida-wannierjl?branch=main
+[ci-badge]: https://github.com/elinscott/aiida-wannierjl/actions/workflows/ci.yml/badge.svg?branch=main
+[ci-link]: https://github.com/elinscott/aiida-wannierjl/actions/workflows/ci.yml
+[cov-badge]: https://codecov.io/gh/elinscott/aiida-wannierjl/branch/main/graph/badge.svg
+[cov-link]: https://codecov.io/gh/elinscott/aiida-wannierjl
 [docs-badge]: https://readthedocs.org/projects/aiida-wannierjl/badge
 [docs-link]: http://aiida-wannierjl.readthedocs.io/
 [pypi-badge]: https://badge.fury.io/py/aiida-wannierjl.svg

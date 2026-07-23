@@ -44,7 +44,7 @@ class WannierJLCalcJob(CalcJob):
     _STDOUT = STDOUT_FILE
 
     #: Wannier90 file extensions required by this CalcJob (subclass overrides).
-    _REQUIRED_W90_FILES = ()
+    _REQUIRED_W90_FILES: tuple[str, ...] = ()
 
     #: Map of logical Wannier90 file extension -> explicit ``SinglefileData`` port.
     _FILE_PORTS = {

@@ -41,7 +41,7 @@ _SYSIMAGE_FILENAME = "wannierjl.so"
 
 def _packaged_script(name: str) -> Path:
     """Return the on-disk path of a packaged ``julia/<name>`` script."""
-    return Path(files("aiida_wannierjl") / "julia" / name)
+    return Path(str(files("aiida_wannierjl") / "julia" / name))
 
 
 def setup_julia_environment(
