@@ -5,28 +5,28 @@ Developer guide
 Running the tests
 +++++++++++++++++
 
-The following will discover and run all unit test::
+The test suite mocks the Julia code, so it runs without a real Julia
+installation. The following will discover and run all tests::
 
     pip install --upgrade pip
-    pip install -e .[testing]
+    pip install -e .[pre-commit,workflows]
     pytest -v
 
-You can also run the tests in a virtual environment with `tox <https://tox.wiki/en/latest/>`_::
+The project is managed with `hatch <https://hatch.pypa.io>`_, which the
+continuous integration uses to run the tests across supported Python versions::
 
-    pip install tox tox-conda
-    tox -e py38 -- -v
+    pip install hatch
+    hatch test --cover
 
 Automatic coding style checks
 +++++++++++++++++++++++++++++
 
-Enable enable automatic checks of code sanity and coding style::
+Enable automatic checks of code sanity and coding style::
 
     pip install -e .[pre-commit]
     pre-commit install
 
-After this, the `black <https://black.readthedocs.io>`_ formatter,
-the `pylint <https://www.pylint.org/>`_ linter
-and the `pylint <https://www.pylint.org/>`_ code analyzer will
+After this, the `ruff <https://docs.astral.sh/ruff/>`_ formatter and linter will
 run at every commit.
 
 If you ever need to skip these pre-commit hooks, just use::

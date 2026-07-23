@@ -4,6 +4,12 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
+  jobs:
+    # aiida-workgraph and node-graph come from the patched fork (mirrors the
+    # CI tests job); autodoc imports the workflows module, so the docs build
+    # needs them present. Keep this in sync with .github/workflows/ci.yml.
+    post_install:
+      - pip install --force-reinstall --no-deps git+https://github.com/elinscott/node-graph@patched git+https://github.com/elinscott/aiida-workgraph@patched
 
 python:
   install:
@@ -11,6 +17,7 @@ python:
       path: .
       extra_requirements:
         - docs
+        - workflows
 
 sphinx:
     builder: html

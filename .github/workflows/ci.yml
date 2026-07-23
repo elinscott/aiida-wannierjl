@@ -1,85 +1,113 @@
-name: ci
+name: CI
+
+# by default, give the GITHUB_TOKEN no permissions
+permissions: {}
 
 on:
   push:
-    # only pushes to main trigger
     branches: [main]
   pull_request:
-    # always triggered
+    branches: ["**"]
 
 jobs:
+  lint:
+    name: Lint
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff==0.4.3
+      - name: Run linter
+        run: ruff check .
+      - name: Check formatting
+        run: ruff format --check .
+
+  mypy:
+    name: Type check
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install mypy .[workflows]
+      - name: Run mypy
+        run: mypy src/aiida_wannierjl --ignore-missing-imports
 
   tests:
+    name: Tests
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.12']
-        aiida-version: ['stable']
+        python-version: ["3.13", "3.12"]
 
-    services:
-      postgres:
-        image: postgres:10
-        env:
-          POSTGRES_DB: test_aiida
-          POSTGRES_PASSWORD: ''
-          POSTGRES_HOST_AUTH_METHOD: trust
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      rabbitmq:
-        image: rabbitmq:latest
-        ports:
-          - 5672:5672
+    # No services: the test profile uses the broker-less ``core.sqlite_dos``
+    # default from ``aiida.tools.pytest_fixtures``, so neither PostgreSQL nor
+    # RabbitMQ is required.
 
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install project manager
-      run: |
-        pip install hatch
-    - name: Run test suite
-      env:
-        PYTEST_ADDOPTS: "--durations=0"
-      run: |
-        hatch test --cover
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the package and test dependencies
+        # aiida-workgraph and node-graph come from the patched fork (the
+        # workgraph fixes the split_wannierization workflow relies on are not
+        # yet on PyPI); everything else is plain PyPI. --force-reinstall
+        # --no-deps overrides the PyPI aiida-workgraph the workflows extra
+        # pulls in, without disturbing the rest of the resolved environment.
+        run: |
+          pip install .[workflows] pytest coverage
+          pip install --force-reinstall --no-deps \
+            git+https://github.com/elinscott/node-graph@patched \
+            git+https://github.com/elinscott/aiida-workgraph@patched
+      - name: Run tests with coverage
+        env:
+          PYTEST_ADDOPTS: "--durations=0"
+        run: |
+          coverage run -m pytest tests/
+          coverage xml
+      - name: Upload coverage reports to Codecov
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: elinscott/aiida-wannierjl
 
   docs:
+    name: Documentation
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install project manager
-      run: |
-        pip install hatch
-    - name: Build docs
-      run: |
-        hatch run docs:build
-
-  static-analysis:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install project manager
-      run: |
-        pip install hatch
-    - name: Run formatter and linter
-      run: |
-        hatch fmt --check
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Install the package with docs dependencies
+        run: pip install .[docs,workflows]
+      - name: Build the documentation
+        run: python -m sphinx -T -W -b html docs/source docs/_build/html

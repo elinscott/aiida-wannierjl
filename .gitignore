@@ -13,3 +13,7 @@ build/
 dist/
 pip-wheel-metadata/
 .tox/
+
+# Generated documentation
+docs/build/
+docs/source/apidoc/

@@ -38,7 +38,6 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinxcontrib.contentui",
     "aiida.sphinxext",
 ]
 
@@ -183,6 +182,23 @@ html_search_language = "en"
 nitpick_ignore = [
     ("py:class", "Logger"),
     ("py:class", "QbFields"),  # Warning started to appear with aiida 2.6
+    # Bare class names appearing in (string) type annotations
+    ("py:class", "CalcJobNode"),
+    ("py:class", "CalcInfo"),
+    # ``@task.graph``-decorated callables are opaque to autodoc (they are
+    # decorated task objects rather than plain functions), so sphinx-apidoc
+    # never emits targets for them.
+    ("py:func", "aiida_wannierjl.workflows.split.split_wannierization"),
+    ("py:func", "aiida_wannierjl.workflows.split.split_after_check"),
+]
+
+# The aiida-core documentation no longer publishes an objects.inv containing its
+# API objects, so none of these references can be resolved via intersphinx.
+nitpick_ignore_regex = [
+    ("py:class", r"aiida\..*"),
+    ("py:exc", r"aiida\..*"),
+    ("py:func", r"aiida\..*"),
+    ("py:meth", r"aiida\..*"),
 ]
 
 

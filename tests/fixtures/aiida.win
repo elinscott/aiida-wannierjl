@@ -1,0 +1,14 @@
+num_wann = 4
+num_bands = 4
+
+begin unit_cell_cart
+  0.0 2.7 2.7
+  2.7 0.0 2.7
+  2.7 2.7 0.0
+end unit_cell_cart
+
+mp_grid = 2 2 2
+
+begin kpoints
+0.0 0.0 0.0
+end kpoints
