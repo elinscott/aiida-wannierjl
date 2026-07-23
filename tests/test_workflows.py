@@ -187,13 +187,13 @@ def test_cubic_absent_without_nscf_fails(mock_julia_code_no_cubic):
             **_w90_file_inputs(),
         )
     # The nested graph task raises ValueError at runtime; the graph must not finish OK.
-    # Depending on the runner, that surfaces either as an exception from ``run`` or
-    # as a non-FINISHED graph state -- tolerate both.
+    # A failed child leaves the WorkGraph lifecycle state ``FINISHED`` (it ran to
+    # completion) but with a non-zero exit status, so check the process, not the state.
     try:
         wg.run()
     except Exception:
         pass
-    assert wg.state != "FINISHED"
+    assert not wg.process.is_finished_ok
 
 
 def test_cubic_absent_runs_pw2wannier90(
