@@ -114,9 +114,20 @@ def _parent_folders(wannier90_parent, pw2wannier90_parent, cubic_parent=None):
     return {key: node for key, node in parents.items() if node is not None}
 
 
+def _plain_dict(mapping):
+    """Rebuild ``mapping`` (and any nested mappings) into plain ``dict``s.
+
+    A dict-valued graph input reaches a deferred ``@task.graph`` body as a
+    wrapt ``TaggedValue`` proxy, which namespace sockets such as
+    ``metadata.options`` reject on assignment; rebuilding with plain ``dict``s
+    keeps the options ports usable from inside a graph.
+    """
+    return {key: _plain_dict(value) if isinstance(value, dict) else value for key, value in mapping.items()}
+
+
 def _options_metadata(options):
-    """Wrap a plain options dict as CalcJob ``metadata`` (empty when unset)."""
-    return {"options": options} if options else {}
+    """Wrap an options dict as CalcJob ``metadata`` (empty when unset)."""
+    return {"options": _plain_dict(options)} if options else {}
 
 
 @task.graph(outputs=_BRANCH_OUTPUTS)
