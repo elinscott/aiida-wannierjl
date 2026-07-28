@@ -178,6 +178,31 @@ def test_cubic_present_skips_pw2wannier90(mock_julia_code):
     assert set(split_nodes[0].outputs.blocks) == {"block_0", "block_1"}
 
 
+def test_options_dict_reaches_calcjobs(mock_julia_code):
+    """A ``wjl_options`` dict passed as a graph input lands on the CalcJobs.
+
+    At runtime the graph body receives ``wjl_options`` as an ``orm.Dict``
+    node rather than the plain dict the caller passed; the options must
+    still reach the CalcJob ``metadata.options`` namespace (first hit in the
+    outer body's check step, then again in the nested split step).
+    """
+    options = {"withmpi": False, "resources": {"num_machines": 1, "num_mpiprocs_per_machine": 1}}
+    with WorkGraph() as wg:
+        split_wannierization(
+            wjl_code=mock_julia_code,
+            groups=orm.List(list=[[1, 2], [3, 4]]),
+            wjl_options=options,
+            **_w90_file_inputs(),
+        )
+    wg.run()
+    assert wg.process.is_finished_ok
+
+    split_nodes = QueryBuilder().append(SplitCalculation).all(flat=True)
+    assert len(split_nodes) == 1
+    assert split_nodes[0].get_options()["resources"] == options["resources"]
+    assert split_nodes[0].get_options()["withmpi"] is False
+
+
 def test_cubic_absent_without_nscf_fails(mock_julia_code_no_cubic):
     """The cubic branch needs nscf_parent + pw2wannier90_code; missing => graph fails."""
     with WorkGraph() as wg:
