@@ -149,8 +149,8 @@ def split_after_check(
     amn_file: orm.SinglefileData | None = None,
     eig_file: orm.SinglefileData | None = None,
     outdirs: list[str] | orm.List | None = None,
-    wjl_options: dict[str, Any] | None = None,
-    pw2wannier90_options: dict[str, Any] | None = None,
+    wjl_options: dict[str, Any] | orm.Dict | None = None,
+    pw2wannier90_options: dict[str, Any] | orm.Dict | None = None,
 ):
     """Regenerate the cubic ``.mmn`` if needed, then run the split.
 
@@ -223,8 +223,8 @@ def split_wannierization(
     amn_file: orm.SinglefileData | None = None,
     eig_file: orm.SinglefileData | None = None,
     outdirs: list[str] | orm.List | None = None,
-    wjl_options: dict[str, Any] | None = None,
-    pw2wannier90_options: dict[str, Any] | None = None,
+    wjl_options: dict[str, Any] | orm.Dict | None = None,
+    pw2wannier90_options: dict[str, Any] | orm.Dict | None = None,
 ):
     """Check cubic neighbours, optionally regenerate the cubic ``.mmn``, then split.
 
@@ -240,7 +240,9 @@ def split_wannierization(
     :param pw2wannier90_code: the ``pw2wannier90.x`` code; required only if the
         cubic branch triggers.
     :param pw2wannier90_parameters: optional override ``Dict`` for the cubic
-        pw2wannier90.x; defaults to writing only the ``.mmn``.
+        pw2wannier90.x; defaults to writing only the ``.mmn``. It must be an
+        :class:`~aiida.orm.Dict`: a plain dict passes this socket but is
+        rejected downstream by the pw2wannier90.x ``parameters`` port.
     :param chk_file, mmn_file, amn_file, eig_file: optional explicit
         :class:`~aiida.orm.SinglefileData` alternatives to the parent folders.
     :param outdirs: optional list of per-block output directory names
