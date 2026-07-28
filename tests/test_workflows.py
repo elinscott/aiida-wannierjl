@@ -179,11 +179,12 @@ def test_cubic_present_skips_pw2wannier90(mock_julia_code):
 
 
 def test_options_dict_reaches_calcjobs(mock_julia_code):
-    """A ``wjl_options`` dict survives the nested graph task and lands on the CalcJobs.
+    """A ``wjl_options`` dict passed as a graph input lands on the CalcJobs.
 
-    The nested ``split_after_check`` graph task receives ``wjl_options`` as a
-    graph input, so its body sees a wrapt ``TaggedValue`` proxy at runtime; the
-    options must still reach the CalcJob ``metadata.options`` namespace.
+    At runtime the graph body receives ``wjl_options`` as an ``orm.Dict``
+    node rather than the plain dict the caller passed; the options must
+    still reach the CalcJob ``metadata.options`` namespace (first hit in the
+    outer body's check step, then again in the nested split step).
     """
     options = {"withmpi": False, "resources": {"num_machines": 1, "num_mpiprocs_per_machine": 1}}
     with WorkGraph() as wg:

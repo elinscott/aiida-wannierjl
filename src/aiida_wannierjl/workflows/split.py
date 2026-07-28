@@ -117,16 +117,17 @@ def _parent_folders(wannier90_parent, pw2wannier90_parent, cubic_parent=None):
 def _plain_dict(mapping):
     """Rebuild ``mapping`` (and any nested mappings) into plain ``dict``s.
 
-    A dict-valued graph input reaches a deferred ``@task.graph`` body as a
-    wrapt ``TaggedValue`` proxy, which namespace sockets such as
-    ``metadata.options`` reject on assignment; rebuilding with plain ``dict``s
-    keeps the options ports usable from inside a graph.
+    A dict-valued graph input arrives in a ``@task.graph`` body as an
+    ``aiida.orm.Dict`` node, and namespace sockets such as
+    ``metadata.options`` only accept a real mapping; rebuilding with plain
+    ``dict``s keeps the options ports usable from inside a graph. The
+    ``items`` duck-check covers ``dict`` and ``orm.Dict`` alike.
     """
-    return {key: _plain_dict(value) if isinstance(value, dict) else value for key, value in mapping.items()}
+    return {key: _plain_dict(value) if hasattr(value, "items") else value for key, value in mapping.items()}
 
 
 def _options_metadata(options):
-    """Wrap an options dict as CalcJob ``metadata`` (empty when unset)."""
+    """Wrap an options dict as CalcJob ``metadata`` (empty when ``options`` is ``None``)."""
     return {"options": _plain_dict(options)} if options else {}
 
 
