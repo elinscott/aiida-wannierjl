@@ -37,6 +37,8 @@ the package -- but it must not be named with a leading underscore: a
 AiiDA rejects link labels that start with ``_``.)
 """
 
+from typing import Any
+
 try:
     from aiida_workgraph import spec, task
 except ImportError as exc:  # pragma: no cover - exercised only without the extra
@@ -133,22 +135,22 @@ def _options_metadata(options):
 
 @task.graph(outputs=_BRANCH_OUTPUTS)
 def split_after_check(
-    has_cubic_neighbors,
-    wjl_code,
-    win_file,
-    groups,
-    wannier90_parent=None,
-    pw2wannier90_parent=None,
-    nscf_parent=None,
-    pw2wannier90_code=None,
-    pw2wannier90_parameters=None,
-    chk_file=None,
-    mmn_file=None,
-    amn_file=None,
-    eig_file=None,
-    outdirs=None,
-    wjl_options=None,
-    pw2wannier90_options=None,
+    has_cubic_neighbors: bool | orm.Bool,
+    wjl_code: orm.AbstractCode,
+    win_file: orm.SinglefileData,
+    groups: list[list[int]] | orm.List,
+    wannier90_parent: orm.RemoteData | None = None,
+    pw2wannier90_parent: orm.RemoteData | None = None,
+    nscf_parent: orm.RemoteData | None = None,
+    pw2wannier90_code: orm.AbstractCode | None = None,
+    pw2wannier90_parameters: orm.Dict | None = None,
+    chk_file: orm.SinglefileData | None = None,
+    mmn_file: orm.SinglefileData | None = None,
+    amn_file: orm.SinglefileData | None = None,
+    eig_file: orm.SinglefileData | None = None,
+    outdirs: list[str] | orm.List | None = None,
+    wjl_options: dict[str, Any] | None = None,
+    pw2wannier90_options: dict[str, Any] | None = None,
 ):
     """Regenerate the cubic ``.mmn`` if needed, then run the split.
 
@@ -208,21 +210,21 @@ def split_after_check(
 
 @task.graph(outputs=_GRAPH_OUTPUTS)
 def split_wannierization(
-    wjl_code,
-    win_file,
-    groups,
-    wannier90_parent=None,
-    pw2wannier90_parent=None,
-    nscf_parent=None,
-    pw2wannier90_code=None,
-    pw2wannier90_parameters=None,
-    chk_file=None,
-    mmn_file=None,
-    amn_file=None,
-    eig_file=None,
-    outdirs=None,
-    wjl_options=None,
-    pw2wannier90_options=None,
+    wjl_code: orm.AbstractCode,
+    win_file: orm.SinglefileData,
+    groups: list[list[int]] | orm.List,
+    wannier90_parent: orm.RemoteData | None = None,
+    pw2wannier90_parent: orm.RemoteData | None = None,
+    nscf_parent: orm.RemoteData | None = None,
+    pw2wannier90_code: orm.AbstractCode | None = None,
+    pw2wannier90_parameters: orm.Dict | None = None,
+    chk_file: orm.SinglefileData | None = None,
+    mmn_file: orm.SinglefileData | None = None,
+    amn_file: orm.SinglefileData | None = None,
+    eig_file: orm.SinglefileData | None = None,
+    outdirs: list[str] | orm.List | None = None,
+    wjl_options: dict[str, Any] | None = None,
+    pw2wannier90_options: dict[str, Any] | None = None,
 ):
     """Check cubic neighbours, optionally regenerate the cubic ``.mmn``, then split.
 
