@@ -37,7 +37,7 @@ the package -- but it must not be named with a leading underscore: a
 AiiDA rejects link labels that start with ``_``.)
 
 Implementation note -- native types in, AiiDA nodes at runtime
--------------------------------------------------------------
+--------------------------------------------------------------
 The graph signatures state the *caller's* contract in native Python
 (``list``/``dict``/``bool``) wherever a native form exists; only the inputs with
 no native analogue -- the codes, the Wannier90 files, the remote parent folders
