@@ -35,6 +35,16 @@ check has finished -- the value is concrete and ordinary Python ``if`` works.
 the package -- but it must not be named with a leading underscore: a
 ``@task.graph`` function name becomes an AiiDA ``CALL_WORK`` link label, and
 AiiDA rejects link labels that start with ``_``.)
+
+Implementation note -- native types in, AiiDA nodes at runtime
+-------------------------------------------------------------
+The graph signatures state the *caller's* contract in native Python
+(``list``/``dict``/``bool``) wherever a native form exists; only the inputs with
+no native analogue -- the codes, the Wannier90 files, the remote parent folders
+-- are typed as AiiDA nodes. The engine serialises the native inputs on the way
+in, so a body reads them back as ``orm.List``/``orm.Dict``/``orm.Bool`` and has
+to rebuild what it needs (see :func:`_plain_dict`); that round trip is an engine
+detail and is deliberately kept out of the signatures.
 """
 
 from typing import Any
@@ -135,22 +145,22 @@ def _options_metadata(options):
 
 @task.graph(outputs=_BRANCH_OUTPUTS)
 def split_after_check(
-    has_cubic_neighbors: bool | orm.Bool,
+    has_cubic_neighbors: bool,
     wjl_code: orm.AbstractCode,
     win_file: orm.SinglefileData,
-    groups: list[list[int]] | orm.List,
+    groups: list[list[int]],
     wannier90_parent: orm.RemoteData | None = None,
     pw2wannier90_parent: orm.RemoteData | None = None,
     nscf_parent: orm.RemoteData | None = None,
     pw2wannier90_code: orm.AbstractCode | None = None,
-    pw2wannier90_parameters: orm.Dict | None = None,
+    pw2wannier90_parameters: dict[str, Any] | None = None,
     chk_file: orm.SinglefileData | None = None,
     mmn_file: orm.SinglefileData | None = None,
     amn_file: orm.SinglefileData | None = None,
     eig_file: orm.SinglefileData | None = None,
-    outdirs: list[str] | orm.List | None = None,
-    wjl_options: dict[str, Any] | orm.Dict | None = None,
-    pw2wannier90_options: dict[str, Any] | orm.Dict | None = None,
+    outdirs: list[str] | None = None,
+    wjl_options: dict[str, Any] | None = None,
+    pw2wannier90_options: dict[str, Any] | None = None,
 ):
     """Regenerate the cubic ``.mmn`` if needed, then run the split.
 
@@ -212,26 +222,26 @@ def split_after_check(
 def split_wannierization(
     wjl_code: orm.AbstractCode,
     win_file: orm.SinglefileData,
-    groups: list[list[int]] | orm.List,
+    groups: list[list[int]],
     wannier90_parent: orm.RemoteData | None = None,
     pw2wannier90_parent: orm.RemoteData | None = None,
     nscf_parent: orm.RemoteData | None = None,
     pw2wannier90_code: orm.AbstractCode | None = None,
-    pw2wannier90_parameters: orm.Dict | None = None,
+    pw2wannier90_parameters: dict[str, Any] | None = None,
     chk_file: orm.SinglefileData | None = None,
     mmn_file: orm.SinglefileData | None = None,
     amn_file: orm.SinglefileData | None = None,
     eig_file: orm.SinglefileData | None = None,
-    outdirs: list[str] | orm.List | None = None,
-    wjl_options: dict[str, Any] | orm.Dict | None = None,
-    pw2wannier90_options: dict[str, Any] | orm.Dict | None = None,
+    outdirs: list[str] | None = None,
+    wjl_options: dict[str, Any] | None = None,
+    pw2wannier90_options: dict[str, Any] | None = None,
 ):
     """Check cubic neighbours, optionally regenerate the cubic ``.mmn``, then split.
 
-    :param wjl_code: the Wannier.jl ``InstalledCode`` (julia binary).
+    :param wjl_code: the Wannier.jl code (the julia binary).
     :param win_file: the Wannier90 ``.win`` file (:class:`~aiida.orm.SinglefileData`).
-    :param groups: 1-based Wannier-function index groups, e.g. ``[[1, 2], [3, 4]]``
-        (a plain list or :class:`~aiida.orm.List`), one group per output block.
+    :param groups: 1-based Wannier-function index groups, e.g. ``[[1, 2], [3, 4]]``,
+        one group per output block.
     :param wannier90_parent: ``RemoteData`` of the wannier90.x run (source of ``.chk``).
     :param pw2wannier90_parent: ``RemoteData`` of the pw2wannier90.x run
         (source of ``.amn``/``.mmn``/``.eig``).
@@ -239,10 +249,8 @@ def split_wannierization(
         cubic branch triggers (input to the cubic pw2wannier90.x).
     :param pw2wannier90_code: the ``pw2wannier90.x`` code; required only if the
         cubic branch triggers.
-    :param pw2wannier90_parameters: optional override ``Dict`` for the cubic
-        pw2wannier90.x; defaults to writing only the ``.mmn``. It must be an
-        :class:`~aiida.orm.Dict`: a plain dict passes this socket but is
-        rejected downstream by the pw2wannier90.x ``parameters`` port.
+    :param pw2wannier90_parameters: optional override parameters for the cubic
+        pw2wannier90.x; defaults to writing only the ``.mmn``.
     :param chk_file, mmn_file, amn_file, eig_file: optional explicit
         :class:`~aiida.orm.SinglefileData` alternatives to the parent folders.
     :param outdirs: optional list of per-block output directory names
