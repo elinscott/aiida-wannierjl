@@ -57,7 +57,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     # No services: the test profile uses the broker-less ``core.sqlite_dos``
     # default from ``aiida.tools.pytest_fixtures``, so neither PostgreSQL nor
