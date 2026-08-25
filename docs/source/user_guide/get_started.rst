@@ -105,21 +105,8 @@ CalcJob can add ``--sysimage``::
 Minimal usage
 +++++++++++++
 
-Once the code is registered, the quickest way to check the setup end to end is
-``wannierjl.generate_neighbors``: it only needs a ``.win`` file, so it
-exercises the Julia driver without a full wannier90 run to hand::
-
-    from aiida.engine import run
-    from aiida.orm import SinglefileData, load_code
-    from aiida_wannierjl.calculations.generate_neighbors import (
-        GenerateNeighborsCalculation,
-    )
-
-    builder = GenerateNeighborsCalculation.get_builder()
-    builder.code = load_code("wannierjl@localhost")
-    builder.win_file = SinglefileData("/path/to/aiida.win")
-
-    results = run(builder)
-    nnkp = results["nnkp_file"]  # SinglefileData holding cubic.nnkp
-
-See :doc:`tutorial` for the split workflow this setup is for.
+Once the code is registered, the quickest way to check the setup end to end
+is ``wannierjl.generate_neighbors``: it only needs a ``.win`` file, so it
+exercises the Julia driver without a full wannier90 run to hand. See
+:doc:`tutorial`'s fallback section for a runnable example, and the rest of
+the tutorial for the split workflow this setup is for.
