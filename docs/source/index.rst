@@ -20,15 +20,7 @@ pinned Wannier.jl project environment.
    API documentation <apidoc/aiida_wannierjl>
    AiiDA Documentation <https://aiida.readthedocs.io>
 
-If you use AiiDA for your research, please cite the following work:
-
-.. highlights:: Giovanni Pizzi, Andrea Cepellotti, Riccardo Sabatini, Nicola Marzari,
-  and Boris Kozinsky, *AiiDA: automated interactive infrastructure and database
-  for computational science*, Comp. Mat. Sci 111, 218-230 (2016);
-  https://doi.org/10.1016/j.commatsci.2015.09.013; http://www.aiida.net.
-
-``aiida-wannierjl`` wraps `Wannier.jl`_'s manifold-splitting (``mrwf``) method. If you use
-the ``split`` calculation or the ``split_wannierization`` workflow, please cite:
+If you use this plugin for your research, please cite the following work:
 
 .. highlights:: Junfeng Qiao, Giovanni Pizzi, and Nicola Marzari, *Automated mixing of
   maximally localized Wannier functions into target manifolds*, npj Comput. Mater. 9,
@@ -37,6 +29,13 @@ the ``split`` calculation or the ``split_wannierization`` workflow, please cite:
   Junfeng Qiao, Giovanni Pizzi, and Nicola Marzari, *Projectability disentanglement for
   accurate and automated electronic-structure Hamiltonians*, npj Comput. Mater. 9, 208
   (2023); https://doi.org/10.1038/s41524-023-01146-w.
+
+If you use AiiDA for your research, please cite the following work:
+
+.. highlights:: Giovanni Pizzi, Andrea Cepellotti, Riccardo Sabatini, Nicola Marzari,
+  and Boris Kozinsky, *AiiDA: automated interactive infrastructure and database
+  for computational science*, Comp. Mat. Sci 111, 218-230 (2016);
+  https://doi.org/10.1016/j.commatsci.2015.09.013; http://www.aiida.net.
 
 See ``CITATION.cff`` in the repository root for how to cite ``aiida-wannierjl`` itself.
 
