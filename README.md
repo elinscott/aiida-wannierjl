@@ -41,25 +41,11 @@ See the [get started guide](https://aiida-wannierjl.readthedocs.io/en/latest/use
 
 ## Installation
 
-You need `git`, `curl` and `ps` (the `procps` package on Debian/Ubuntu) on the
-machine running the code — `ps` is what the `direct` scheduler uses to tell
-whether a submitted job has finished; without it AiiDA can retrieve a Julia
-calculation's results before Julia has finished writing them.
-
 ```shell
 pip install aiida-wannierjl[workflows]   # drop [workflows] if you don't need the workgraph
-verdi presto                             # set up a new profile (SQLite, no broker)
-verdi plugin list aiida.calculations     # should list the three wannierjl.* plugins
 ```
 
-The `workflows` extra currently pins `aiida-workgraph`, which caps
-`aiida-core` below the newest release (`aiida-core~=2.7.1` as of
-aiida-workgraph 0.8.1) — expect an older `aiida-core` than a bare
-`pip install aiida-core` would give you.
-
-You also need a Julia >= 1.11 installation and the one-time environment setup
-described above; [juliaup](https://github.com/JuliaLang/juliaup) is the
-recommended way to install it: `curl -fsSL https://install.julialang.org | sh`.
+See the [get started guide](https://aiida-wannierjl.readthedocs.io/en/latest/user_guide/get_started.html) for the full setup procedure: system prerequisites, setting up an AiiDA profile, the Julia environment, and registering the Code.
 
 ## Usage
 

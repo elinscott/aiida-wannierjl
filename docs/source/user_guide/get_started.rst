@@ -23,11 +23,11 @@ variable.
 Installation
 ++++++++++++
 
-You need ``git`` and ``curl`` on the machine running the code (for the Julia
-install below), and ``ps`` (the ``procps`` package on Debian/Ubuntu): the
-``direct`` scheduler polls it to tell whether a submitted job has finished,
-and without it AiiDA can retrieve a Julia calculation's results before Julia
-has finished writing them.
+You need ``git`` on the machine running the code (for the Julia install
+below), and ``ps`` (the ``procps`` package on Debian/Ubuntu): the ``direct``
+scheduler polls it to tell whether a submitted job has finished, and without
+it AiiDA can retrieve a Julia calculation's results before Julia has finished
+writing them.
 
 Install ``aiida-wannierjl`` from PyPI (add the ``workflows`` extra for the
 aiida-workgraph split orchestration and the aiida-quantumespresso dependency
@@ -36,11 +36,6 @@ it needs)::
     pip install aiida-wannierjl            # core plugin
     pip install aiida-wannierjl[workflows] # + aiida-workgraph, aiida-quantumespresso
     verdi plugin list aiida.calculations   # should list the three wannierjl entries
-
-The ``workflows`` extra currently pins ``aiida-workgraph``, which caps
-``aiida-core`` below the newest release (``aiida-core~=2.7.1`` as of
-aiida-workgraph 0.8.1) — expect an older ``aiida-core`` than a bare
-``pip install aiida-core`` would give you.
 
 For development, clone the repository and install it editable instead:
 ``git clone https://github.com/elinscott/aiida-wannierjl && cd aiida-wannierjl
