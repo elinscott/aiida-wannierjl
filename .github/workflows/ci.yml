@@ -77,7 +77,7 @@ jobs:
         # --no-deps overrides the PyPI aiida-workgraph the workflows extra
         # pulls in, without disturbing the rest of the resolved environment.
         run: |
-          pip install .[workflows] pytest coverage
+          pip install -e .[workflows] pytest coverage
           pip install --force-reinstall --no-deps \
             git+https://github.com/elinscott/node-graph@patched \
             git+https://github.com/elinscott/aiida-workgraph@patched
