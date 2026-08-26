@@ -230,14 +230,32 @@ def run_apidoc(_):
         "-o",
         apidoc_dir,
         package_dir,
-        "--private",
         "--force",
         "--no-toc",
+        # Package docstring before its submodules, so a reader meets the
+        # package's own contract first.
+        "--module-first",
+        # A "Subpackages" toctree with the default depth (4) inlines every
+        # submodule's classes and methods again on the parent package page;
+        # cap it at links to the subpackage pages themselves.
+        "--maxdepth",
+        "1",
     ]
 
     # See https://stackoverflow.com/a/30144019
+    # Documented public members only: no private (_foo), no special
+    # (__foo__), no undocumented members. The API reference is a
+    # public-surface contract, not a source dump.
+    #
+    # ignore-module-all: every aiida_wannierjl subpackage's __init__.py
+    # re-exports its classes via __all__, which by default makes autodoc
+    # document each class twice — once under "Submodules" for the owning
+    # submodule, and again on the package's own automodule directive, which
+    # otherwise pulls in whatever __all__ lists regardless of where it is
+    # defined. Ignoring __all__ here falls autodoc back to membership by
+    # definition, so the package page shows only its own docstring.
     env = os.environ.copy()
-    env["SPHINX_APIDOC_OPTIONS"] = "members,special-members,private-members,undoc-members,show-inheritance"
+    env["SPHINX_APIDOC_OPTIONS"] = "members,show-inheritance,ignore-module-all"
     subprocess.check_call([cmd_path] + options, env=env)
 
 

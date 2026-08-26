@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+title: aiida-wannierjl
+type: software
+version: 0.1.0a0
+authors:
+  - family-names: Linscott
+    given-names: Edward
+    email: edwardlinscott@gmail.com
+repository-code: https://github.com/elinscott/aiida-wannierjl
+license: MIT

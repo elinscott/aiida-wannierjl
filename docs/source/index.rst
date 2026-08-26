@@ -22,7 +22,13 @@ pinned Wannier.jl project environment.
 
 If you use this plugin for your research, please cite the following work:
 
-.. highlights:: Author Name1, Author Name2, *Paper title*, Jornal Name XXX, YYYY (Year).
+.. highlights:: Junfeng Qiao, Giovanni Pizzi, and Nicola Marzari, *Automated mixing of
+  maximally localized Wannier functions into target manifolds*, npj Comput. Mater. 9,
+  206 (2023); https://doi.org/10.1038/s41524-023-01147-9.
+
+  Junfeng Qiao, Giovanni Pizzi, and Nicola Marzari, *Projectability disentanglement for
+  accurate and automated electronic-structure Hamiltonians*, npj Comput. Mater. 9, 208
+  (2023); https://doi.org/10.1038/s41524-023-01146-w.
 
 If you use AiiDA for your research, please cite the following work:
 
@@ -30,6 +36,8 @@ If you use AiiDA for your research, please cite the following work:
   and Boris Kozinsky, *AiiDA: automated interactive infrastructure and database
   for computational science*, Comp. Mat. Sci 111, 218-230 (2016);
   https://doi.org/10.1016/j.commatsci.2015.09.013; http://www.aiida.net.
+
+See ``CITATION.cff`` in the repository root for how to cite ``aiida-wannierjl`` itself.
 
 ``aiida-wannierjl`` is released under the MIT license.
 

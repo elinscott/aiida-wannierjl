@@ -2,13 +2,18 @@
 Getting started
 ===============
 
-``aiida-wannierjl`` wraps a small set of `Wannier.jl
-<https://github.com/qiaojunfeng/Wannier.jl>`_ operations as AiiDA CalcJobs:
+``aiida-wannierjl`` wraps `Wannier.jl <https://github.com/qiaojunfeng/Wannier.jl>`_'s
+manifold splitting as an AiiDA CalcJob, ``wannierjl.split``, which cuts a
+Wannier manifold into disjoint blocks (``Wannier.Tools.mrwf``) so each block
+can be re-wannierised on its own. With the ``workflows`` extra installed, the
+``split_wannierization`` workgraph orchestrates a full run, from a completed
+wannier90 calculation to per-block outputs.
 
-* ``wannierjl.check_neighbors`` — test whether a wannierisation has cubic
-  b-vector neighbours;
-* ``wannierjl.generate_neighbors`` — write a cubic ``.nnkp`` file;
-* ``wannierjl.split`` — split a wannierisation into blocks (``mrwf``).
+The split needs the wannierisation's k-point stencil to hold six cubic
+nearest-neighbour b-vectors. Two supporting CalcJobs, ``wannierjl.check_neighbors``
+and ``wannierjl.generate_neighbors``, detect and, if needed, supply that
+stencil; ``split_wannierization`` drives them automatically, so most users
+never call them directly (see the tutorial's fallback section).
 
 Each CalcJob renders a Julia driver script and runs it against a persistent,
 pinned Wannier.jl project environment. The AiiDA ``Code`` is the ``julia``
@@ -100,21 +105,8 @@ CalcJob can add ``--sysimage``::
 Minimal usage
 +++++++++++++
 
-Generate a cubic ``.nnkp`` from a ``.win`` file::
-
-    from aiida.engine import run
-    from aiida.orm import SinglefileData, load_code
-    from aiida_wannierjl.calculations.generate_neighbors import (
-        GenerateNeighborsCalculation,
-    )
-
-    builder = GenerateNeighborsCalculation.get_builder()
-    builder.code = load_code("wannierjl@localhost")
-    builder.win_file = SinglefileData("/path/to/aiida.win")
-
-    results = run(builder)
-    nnkp = results["nnkp_file"]  # SinglefileData holding cubic.nnkp
-
-For the full check → (generate + cubic pw2wannier90) → split flow, see
-``aiida_wannierjl.workflows.split_wannierization`` (requires the ``workflows``
-extra).
+Once the code is registered, the quickest way to check the setup end to end
+is ``wannierjl.generate_neighbors``: it only needs a ``.win`` file, so it
+exercises the Julia driver without a full wannier90 run to hand. See
+:doc:`tutorial`'s fallback section for a runnable example, and the rest of
+the tutorial for the split workflow this setup is for.
