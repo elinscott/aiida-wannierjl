@@ -4,13 +4,6 @@ Every Wannier.jl CalcJob renders a small Julia *driver script* (``driver.jl``)
 that is executed against a persistent Wannier.jl project environment. The driver
 writes a machine-readable ``results.json`` that the matching parser turns into
 AiiDA output nodes.
-
-The concrete subclasses (:mod:`~aiida_wannierjl.calculations.check_neighbors`,
-:mod:`~aiida_wannierjl.calculations.generate_neighbors`,
-:mod:`~aiida_wannierjl.calculations.split`) only have to declare which Wannier90
-files they need (``_REQUIRED_W90_FILES``) and how to render their driver script
-(``_render_driver_script``); everything else (file staging, command line,
-retrieval, exit codes) lives here.
 """
 
 import os

@@ -1,7 +1,5 @@
-"""Parser plugins for the Wannier.jl CalcJobs.
-
-Each parser reads the machine-readable ``results.json`` emitted by its
-driver script and turns it into AiiDA output nodes.
+"""Parser plugins for the Wannier.jl CalcJobs: ``check_neighbors``,
+``generate_neighbors``, ``split``.
 """
 
 from .base import WannierJLBaseParser

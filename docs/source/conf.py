@@ -232,6 +232,14 @@ def run_apidoc(_):
         package_dir,
         "--force",
         "--no-toc",
+        # Package docstring before its submodules, so a reader meets the
+        # package's own contract first.
+        "--module-first",
+        # A "Subpackages" toctree with the default depth (4) inlines every
+        # submodule's classes and methods again on the parent package page;
+        # cap it at links to the subpackage pages themselves.
+        "--maxdepth",
+        "1",
     ]
 
     # See https://stackoverflow.com/a/30144019
@@ -241,6 +249,33 @@ def run_apidoc(_):
     env = os.environ.copy()
     env["SPHINX_APIDOC_OPTIONS"] = "members,show-inheritance"
     subprocess.check_call([cmd_path] + options, env=env)
+
+    _drop_reexport_duplication(apidoc_dir)
+
+
+def _drop_reexport_duplication(apidoc_dir):
+    """Strip ``:members:`` from each package's own automodule directive.
+
+    A package whose ``__init__.py`` re-exports its submodules' classes via
+    ``__all__`` (as every ``aiida_wannierjl`` subpackage does) makes autodoc
+    document those classes twice: once under "Submodules" for the owning
+    submodule, and again under the package's own automodule directive, which
+    picks up ``__all__`` members regardless of where they are defined. The
+    submodule copy is the complete one; the package-level directive should
+    show only the package docstring.
+    """
+    import glob
+    import re
+
+    for rst_path in glob.glob(os.path.join(apidoc_dir, "*.rst")):
+        module_name = os.path.splitext(os.path.basename(rst_path))[0]
+        with open(rst_path, encoding="utf-8") as f:
+            content = f.read()
+        pattern = re.compile(rf"(\.\. automodule:: {re.escape(module_name)}\n)(?:   :[\w-]+:.*\n)+")
+        new_content = pattern.sub(r"\1", content)
+        if new_content != content:
+            with open(rst_path, "w", encoding="utf-8") as f:
+                f.write(new_content)
 
 
 def setup(app):

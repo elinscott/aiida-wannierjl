@@ -1,8 +1,5 @@
-"""CalcJob plugins for wrapping Wannier.jl operations.
-
-Each operation (check_neighbors, generate_neighbors, split) is a separate
-CalcJob that renders a Julia driver script and runs it against a persistent
-Wannier.jl project environment.
+"""CalcJob plugins for wrapping Wannier.jl operations: ``check_neighbors``,
+``generate_neighbors``, ``split``.
 """
 
 from .base import WannierJLCalcJob
