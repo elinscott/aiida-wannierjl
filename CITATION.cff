@@ -3,6 +3,7 @@ message: If you use this software, please cite it using the metadata from this f
 title: aiida-wannierjl
 type: software
 version: 0.1.0
+date-released: 2026-08-26
 authors:
   - family-names: Linscott
     given-names: Edward
