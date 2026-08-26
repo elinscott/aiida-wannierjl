@@ -71,6 +71,15 @@ pytest -v                               # discover and run all tests
 
 The test suite mocks the Julia code, so it runs in CI without a real Julia installation. See the [developer guide](https://aiida-wannierjl.readthedocs.io/en/latest/developer_guide/index.html) for more information.
 
+## Citing
+
+`aiida-wannierjl` wraps [Wannier.jl](https://github.com/qiaojunfeng/Wannier.jl)'s manifold-splitting (`mrwf`) method. If you use the `split` calculation or the `split_wannierization` workflow, please cite:
+
+* J. Qiao, G. Pizzi, and N. Marzari, *Automated mixing of maximally localized Wannier functions into target manifolds*, npj Comput. Mater. **9**, 206 (2023), https://doi.org/10.1038/s41524-023-01147-9.
+* J. Qiao, G. Pizzi, and N. Marzari, *Projectability disentanglement for accurate and automated electronic-structure Hamiltonians*, npj Comput. Mater. **9**, 208 (2023), https://doi.org/10.1038/s41524-023-01146-w.
+
+See [`CITATION.cff`](CITATION.cff) (or the GitHub "Cite this repository" button) for how to cite this plugin itself.
+
 ## License
 
 MIT
