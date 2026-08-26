@@ -9,21 +9,3 @@ authors:
     email: edwardlinscott@gmail.com
 repository-code: https://github.com/elinscott/aiida-wannierjl
 license: MIT
-preferred-citation:
-  type: article
-  title: Automated mixing of maximally localized Wannier functions into target manifolds
-  authors:
-    - family-names: Qiao
-      given-names: Junfeng
-    - family-names: Pizzi
-      given-names: Giovanni
-    - family-names: Marzari
-      given-names: Nicola
-  journal: npj Computational Materials
-  volume: 9
-  issue: 1
-  year: 2023
-  identifiers:
-    - description: DOI of the article
-      type: doi
-      value: 10.1038/s41524-023-01147-9
