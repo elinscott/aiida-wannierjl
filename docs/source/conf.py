@@ -230,14 +230,16 @@ def run_apidoc(_):
         "-o",
         apidoc_dir,
         package_dir,
-        "--private",
         "--force",
         "--no-toc",
     ]
 
     # See https://stackoverflow.com/a/30144019
+    # Documented public members only: no private (_foo), no special
+    # (__foo__), no undocumented members. The API reference is a
+    # public-surface contract, not a source dump.
     env = os.environ.copy()
-    env["SPHINX_APIDOC_OPTIONS"] = "members,special-members,private-members,undoc-members,show-inheritance"
+    env["SPHINX_APIDOC_OPTIONS"] = "members,show-inheritance"
     subprocess.check_call([cmd_path] + options, env=env)
 
 
