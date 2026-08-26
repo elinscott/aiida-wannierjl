@@ -27,6 +27,10 @@ Installing the optional `workflows` extra pulls in [aiida-workgraph](https://git
 from aiida_wannierjl.workflows import split_wannierization
 ```
 
+Set up an AiiDA profile before this import (see Installation) — an optional
+dependency of the `workflows` extra loads AiiDA configuration at import time
+and raises a confusing error when no profile exists yet.
+
 It runs `check_neighbors` and, only when the cubic neighbours are missing, generates the `cubic.nnkp`, regenerates the cubic `.mmn` with a `Pw2wannier90Calculation` (forcing `write_mmn=.true.`, `write_amn=.false.`, SCDM off), and then runs `split` — all in a single invocation, with the cubic branch decided at runtime. Re-wannierization and U-matrix merging are deliberately out of scope and stay in the downstream consumer (koopmans).
 
 ## Julia environment
@@ -39,11 +43,9 @@ See the [get started guide](https://aiida-wannierjl.readthedocs.io/en/latest/use
 
 ```shell
 pip install aiida-wannierjl[workflows]   # drop [workflows] if you don't need the workgraph
-verdi quicksetup                         # better to set up a new profile
-verdi plugin list aiida.calculations     # should list the three wannierjl.* plugins
 ```
 
-You also need a Julia >= 1.11 installation and the one-time environment setup described above.
+See the [get started guide](https://aiida-wannierjl.readthedocs.io/en/latest/user_guide/get_started.html) for the full setup procedure: system prerequisites, setting up an AiiDA profile, the Julia environment, and registering the Code.
 
 ## Usage
 

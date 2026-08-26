@@ -23,20 +23,51 @@ variable.
 Installation
 ++++++++++++
 
-Install the plugin (add the ``workflows`` extra for the aiida-workgraph split
-orchestration and the aiida-quantumespresso dependency it needs)::
+You need ``git`` on the machine running the code (for the Julia install
+below), and ``ps`` (the ``procps`` package on Debian/Ubuntu): the ``direct``
+scheduler polls it to tell whether a submitted job has finished, and without
+it AiiDA can retrieve a Julia calculation's results before Julia has finished
+writing them.
 
-    git clone https://github.com/elinscott/aiida-wannierjl .
-    cd aiida-wannierjl
-    pip install -e .            # core plugin
-    pip install -e .[workflows] # + aiida-workgraph, aiida-quantumespresso
-    verdi plugin list aiida.calculations  # should list the three wannierjl entries
+Install ``aiida-wannierjl`` from PyPI (add the ``workflows`` extra for the
+aiida-workgraph split orchestration and the aiida-quantumespresso dependency
+it needs)::
+
+    pip install aiida-wannierjl            # core plugin
+    pip install aiida-wannierjl[workflows] # + aiida-workgraph, aiida-quantumespresso
+    verdi plugin list aiida.calculations   # should list the three wannierjl entries
+
+For development, clone the repository and install it editable instead:
+``git clone https://github.com/elinscott/aiida-wannierjl && cd aiida-wannierjl
+&& pip install -e .[workflows]``.
+
+Setting up an AiiDA profile
++++++++++++++++++++++++++++
+
+If you don't already have an AiiDA profile, the quickest way to get one is::
+
+    verdi presto
+
+This creates a standalone profile backed by SQLite, with no broker or
+PostgreSQL setup required. See the `AiiDA documentation
+<https://aiida.readthedocs.io/projects/aiida-core/en/stable/installation/index.html>`_
+for other setup routes (a full PostgreSQL/RabbitMQ profile, remote
+computers, and so on). Set up a profile before importing
+``aiida_wannierjl.workflows``: an optional dependency of the ``workflows``
+extra loads AiiDA configuration at import time and raises a confusing error
+when no profile exists yet.
 
 One-time Julia environment setup
 ++++++++++++++++++++++++++++++++
 
 The Wannier.jl project is created **once per machine**, never per calculation.
-It requires **julia >= 1.11**.
+It requires **julia >= 1.11**. The recommended way to install Julia is
+`juliaup <https://github.com/JuliaLang/juliaup>`_::
+
+    curl -fsSL https://install.julialang.org | sh
+
+juliaup installs and manages the current Julia release; see its README for
+alternatives (e.g. non-interactive installs, other platforms).
 
 On a machine where you can run Python, use the helper::
 
